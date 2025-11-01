@@ -7,7 +7,7 @@ export default function Home() {
   const [board, setBoard] = useState(Array(9).fill(null));
   const [isXTurn, setIsXTurn] = useState(true);
   const winner = calculateWinner(board);
-  const isTie = board.every((cell) => cell !== null) && !winner; // ✅ Check for tie
+  const isTie = !winner && board.every((cell) => cell !== null);
 
   const audioRef = useRef(null);
   useEffect(() => {
@@ -21,7 +21,7 @@ export default function Home() {
   }, []);
 
   function handleClick(index) {
-    if (board[index] || winner || isTie) return; // prevent moves after win/tie
+    if (board[index] || winner || isTie) return;
     const newBoard = [...board];
     newBoard[index] = isXTurn ? "X" : "O";
     setBoard(newBoard);
@@ -34,8 +34,8 @@ export default function Home() {
   }
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen bg-[#FCF9EA]">
-      {(winner || isTie) && (
+    <main className="flex flex-col items-center justify-center min-h-screen bg-[#FCF9EA] p-4">
+      {winner && (
         <Confetti
           width={typeof window !== "undefined" ? window.innerWidth : 0}
           height={typeof window !== "undefined" ? window.innerHeight : 0}
@@ -44,22 +44,24 @@ export default function Home() {
         />
       )}
 
-      <audio ref={audioRef} src="/audio/BirrajAway.mp3" preload="auto" />
+      <audio ref={audioRef} src="/audio/avacado.mp3" preload="auto" />
 
       <h1
-        className="text-5xl font-bold mb-4"
+        className="text-5xl sm:text-6xl font-bold mb-4 text-center"
         style={{ color: "#B87C4C", fontFamily: "Starbim, sans-serif" }}
       >
         Tic Tac Toe
       </h1>
 
-      <p className="text-xl font-medium mb-8 text-black">
+      <p className="text-xl sm:text-2xl font-medium mb-8 text-black text-center">
         {winner ? (
           <span className="text-3xl font-bold" style={{ color: "#B87C4C" }}>
             Winner: {winner}
           </span>
         ) : isTie ? (
-          <span className="text-3xl font-bold text-[#B87C4C]">It’s a Tie!</span>
+          <span className="text-3xl font-bold" style={{ color: "#B87C4C" }}>
+            It’s a Tie!
+          </span>
         ) : (
           <>
             Current Turn:{" "}
@@ -73,14 +75,14 @@ export default function Home() {
           <button
             key={index}
             onClick={() => handleClick(index)}
-            className="w-28 h-28 rounded-2xl flex items-center justify-center transition transform active:scale-95"
+            className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl flex items-center justify-center transition transform active:scale-95"
             style={{
               background: "#FFFFFF",
               boxShadow: "0 12px 30px rgba(184,124,76,0.18)",
             }}
           >
             <span
-              className="text-5xl font-bold"
+              className="text-5xl font-bold sm:text-6xl"
               style={{
                 color:
                   value === "X"
@@ -99,7 +101,7 @@ export default function Home() {
 
       <button
         onClick={resetGame}
-        className="px-10 py-3 rounded-full text-xl font-medium transition transform active:scale-95"
+        className="px-8 sm:px-10 py-3 rounded-full text-lg sm:text-xl font-medium transition transform active:scale-95"
         style={{
           background: "#FFFFFF",
           color: "#F7A5A5",
@@ -124,9 +126,8 @@ function calculateWinner(board) {
     [2, 4, 6],
   ];
   for (let [a, b, c] of combos) {
-    if (board[a] && board[a] === board[b] && board[b] === board[c]) {
+    if (board[a] && board[a] === board[b] && board[b] === board[c])
       return board[a];
-    }
   }
   return null;
 }
