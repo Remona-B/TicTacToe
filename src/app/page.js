@@ -7,6 +7,7 @@ export default function Home() {
   const [board, setBoard] = useState(Array(9).fill(null));
   const [isXTurn, setIsXTurn] = useState(true);
   const winner = calculateWinner(board);
+  const isTie = board.every((cell) => cell !== null) && !winner; // ✅ Check for tie
 
   const audioRef = useRef(null);
   useEffect(() => {
@@ -20,7 +21,7 @@ export default function Home() {
   }, []);
 
   function handleClick(index) {
-    if (board[index] || winner) return;
+    if (board[index] || winner || isTie) return; // prevent moves after win/tie
     const newBoard = [...board];
     newBoard[index] = isXTurn ? "X" : "O";
     setBoard(newBoard);
@@ -34,7 +35,7 @@ export default function Home() {
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-[#FCF9EA]">
-      {winner && (
+      {(winner || isTie) && (
         <Confetti
           width={typeof window !== "undefined" ? window.innerWidth : 0}
           height={typeof window !== "undefined" ? window.innerHeight : 0}
@@ -57,12 +58,12 @@ export default function Home() {
           <span className="text-3xl font-bold" style={{ color: "#B87C4C" }}>
             Winner: {winner}
           </span>
+        ) : isTie ? (
+          <span className="text-3xl font-bold text-[#B87C4C]">It’s a Tie!</span>
         ) : (
           <>
             Current Turn:{" "}
-            <span className="font-bold">
-              {isXTurn ? "X" : "O"}
-            </span>
+            <span className="font-bold">{isXTurn ? "X" : "O"}</span>
           </>
         )}
       </p>
@@ -81,8 +82,13 @@ export default function Home() {
             <span
               className="text-5xl font-bold"
               style={{
-                color: value === "X" ? "#BADFDB" : value === "O" ? "#D97D55" : "#222",
-                textShadow: "0 4px 12px rgba(184,124,76,0.25)", 
+                color:
+                  value === "X"
+                    ? "#BADFDB"
+                    : value === "O"
+                    ? "#D97D55"
+                    : "#222",
+                textShadow: "0 4px 12px rgba(184,124,76,0.25)",
               }}
             >
               {value}
@@ -108,12 +114,19 @@ export default function Home() {
 
 function calculateWinner(board) {
   const combos = [
-    [0, 1, 2],[3, 4, 5],[6, 7, 8],
-    [0, 3, 6],[1, 4, 7],[2, 5, 8],
-    [0, 4, 8],[2, 4, 6],
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
   ];
   for (let [a, b, c] of combos) {
-    if (board[a] && board[a] === board[b] && board[b] === board[c]) return board[a];
+    if (board[a] && board[a] === board[b] && board[b] === board[c]) {
+      return board[a];
+    }
   }
   return null;
 }
